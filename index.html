@@ -72,14 +72,19 @@
                 clearInterval(interval);
                 console.log("🚀 n8nChat is now available!");
 
-                // Destroy existing chat instance (if any)
                 let chatContainer = document.getElementById("n8n-chat-container");
-                chatContainer.innerHTML = ""; // Ensure clean initialization
 
-                // Initialize chat INSIDE the pop-up window
+                // Clear any previous chat instances
+                chatContainer.innerHTML = ""; 
+
+                // Create and append the chat inside the floating div
+                let chatElement = document.createElement("div");
+                chatContainer.appendChild(chatElement);
+
+                // Initialize chat inside the container
                 window.n8nChat.createChat({
                     webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat",
-                    parentElement: chatContainer // Attach to floating chat window
+                    parentElement: chatElement // Attach chat inside floating window
                 });
             } else if (typeof N8nChat !== "undefined") {
                 window.n8nChat = N8nChat;
