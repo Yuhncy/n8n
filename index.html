@@ -1,91 +1,102 @@
 <style>
-  /* Style for the floating chat button */
-  .chat-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 15px 20px;
-      border-radius: 50px;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: 0.3s;
-  }
+    /* Floating Chat Button */
+    .chat-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 50px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+        z-index: 1000;
+    }
 
-  .chat-button:hover {
-      background-color: #0056b3;
-  }
+    .chat-button:hover {
+        background-color: #0056b3;
+    }
 
-  /* Hidden chat container */
-  #n8n-chat-container {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 350px;
-      height: 500px;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      overflow: hidden;
-      z-index: 9999;
-  }
+    /* Chat Pop-up Window */
+    #n8n-chat-container {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    /* Ensure the chat fills the pop-up */
+    #n8n-chat-container > div {
+        width: 100%;
+        height: 100%;
+    }
 </style>
 
-<!-- Chat Pop-up Button -->
+<!-- Chat Button -->
 <button class="chat-button" onclick="toggleChat()">💬 Chat</button>
 
 <!-- Chat Container -->
 <div id="n8n-chat-container"></div>
 
 <script>
-  function toggleChat() {
-      let chatContainer = document.getElementById("n8n-chat-container");
-      if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
-          chatContainer.style.display = "block";
-      } else {
-          chatContainer.style.display = "none";
-      }
-  }
+    function toggleChat() {
+        let chatContainer = document.getElementById("n8n-chat-container");
+        if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+            chatContainer.style.display = "block";
+        } else {
+            chatContainer.style.display = "none";
+        }
+    }
 
-  let script = document.createElement("script");
-  script.src = "https://yuhncy.github.io/n8n/chat.bundle.umd.js";
-  script.onload = function () {
-      console.log("✅ n8nChat script loaded!");
+    let script = document.createElement("script");
+    script.src = "https://yuhncy.github.io/n8n/chat.bundle.umd.js";
+    script.onload = function () {
+        console.log("✅ n8nChat script loaded!");
 
-      // Assign n8nChat to window if not already defined
-      window.n8nChat = window.n8nChat || N8nChat;
+        // Assign n8nChat to window if not already defined
+        window.n8nChat = window.n8nChat || N8nChat;
 
-      let attempts = 0;
-      let interval = setInterval(function () {
-          if (typeof window.n8nChat !== "undefined" && typeof window.n8nChat.createChat === "function") {
-              clearInterval(interval);
-              console.log("🚀 n8nChat is now available!");
+        let attempts = 0;
+        let interval = setInterval(function () {
+            if (typeof window.n8nChat !== "undefined" && typeof window.n8nChat.createChat === "function") {
+                clearInterval(interval);
+                console.log("🚀 n8nChat is now available!");
 
-              // Initialize chat inside the container
-              window.n8nChat.createChat({
-                  webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat",
-                  parentElement: document.getElementById("n8n-chat-container") // Set the chat inside the floating container
-              });
-          } else if (typeof N8nChat !== "undefined") {
-              window.n8nChat = N8nChat;
-          }
+                // Destroy existing chat instance (if any)
+                let chatContainer = document.getElementById("n8n-chat-container");
+                chatContainer.innerHTML = ""; // Ensure clean initialization
 
-          attempts++;
-          console.log(`🔄 Waiting for n8nChat... Attempt ${attempts}`);
-          if (attempts > 10) {
-              clearInterval(interval);
-              console.error("❌ n8nChat is still undefined after multiple attempts!");
-          }
-      }, 500);
-  };
+                // Initialize chat INSIDE the pop-up window
+                window.n8nChat.createChat({
+                    webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat",
+                    parentElement: chatContainer // Attach to floating chat window
+                });
+            } else if (typeof N8nChat !== "undefined") {
+                window.n8nChat = N8nChat;
+            }
 
-  script.onerror = function () {
-      console.error("❌ Failed to load n8nChat script!");
-  };
+            attempts++;
+            console.log(`🔄 Waiting for n8nChat... Attempt ${attempts}`);
+            if (attempts > 10) {
+                clearInterval(interval);
+                console.error("❌ n8nChat is still undefined after multiple attempts!");
+            }
+        }, 500);
+    };
 
-  document.head.appendChild(script);
+    script.onerror = function () {
+        console.error("❌ Failed to load n8nChat script!");
+    };
+
+    document.head.appendChild(script);
 </script>
