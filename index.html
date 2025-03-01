@@ -1,24 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>n8n Chat</title>
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet">
-</head>
-<body>
-    <script src="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.umd.js"></script>
-    <script>
-        window.addEventListener("load", function () {
-            if (typeof n8nChat !== "undefined") {
-                console.log("🚀 n8nChat is ready!");
-                n8nChat.createChat({
-                    webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat"
-                });
-            } else {
-                console.error("❌ n8nChat failed to load.");
-            }
-        });
-    </script>
-</body>
-</html>
+<script>
+    let script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.umd.js";
+    script.onload = function () {
+        console.log("✅ n8nChat script loaded!");
+
+        // Force assignment to window object
+        window.n8nChat = window.n8nChat || n8nChat;
+
+        // Initialize chat
+        if (window.n8nChat) {
+            console.log("🚀 n8nChat is now available!");
+            window.n8nChat.createChat({
+                webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat"
+            });
+        } else {
+            console.error("❌ n8nChat is still undefined!");
+        }
+    };
+    script.onerror = function () {
+        console.error("❌ Failed to load n8nChat script!");
+    };
+    document.head.appendChild(script);
+</script>
