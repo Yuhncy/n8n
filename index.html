@@ -35,7 +35,7 @@
         z-index: 9999;
     }
 
-    /* Ensure the chat fills the pop-up */
+    /* Ensure chat fills the pop-up */
     #n8n-chat-container > div {
         width: 100%;
         height: 100%;
@@ -53,55 +53,57 @@
         let chatContainer = document.getElementById("n8n-chat-container");
         if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
             chatContainer.style.display = "block";
+            loadChat(); // Load the chat only when the button is clicked
         } else {
             chatContainer.style.display = "none";
+            chatContainer.innerHTML = ""; // Clear the chat when closed
         }
     }
 
-    let script = document.createElement("script");
-    script.src = "https://yuhncy.github.io/n8n/chat.bundle.umd.js";
-    script.onload = function () {
-        console.log("✅ n8nChat script loaded!");
+    function loadChat() {
+        let chatContainer = document.getElementById("n8n-chat-container");
+        chatContainer.innerHTML = ""; // Clear any previous chat instance
 
-        // Assign n8nChat to window if not already defined
-        window.n8nChat = window.n8nChat || N8nChat;
+        let chatElement = document.createElement("div");
+        chatElement.style.width = "100%";
+        chatElement.style.height = "100%";
+        chatContainer.appendChild(chatElement);
 
-        let attempts = 0;
-        let interval = setInterval(function () {
-            if (typeof window.n8nChat !== "undefined" && typeof window.n8nChat.createChat === "function") {
-                clearInterval(interval);
-                console.log("🚀 n8nChat is now available!");
+        let script = document.createElement("script");
+        script.src = "https://yuhncy.github.io/n8n/chat.bundle.umd.js";
+        script.onload = function () {
+            console.log("✅ n8nChat script loaded!");
 
-                let chatContainer = document.getElementById("n8n-chat-container");
+            // Ensure n8nChat is defined
+            window.n8nChat = window.n8nChat || N8nChat;
 
-                // Clear any previous chat instances
-                chatContainer.innerHTML = ""; 
+            let attempts = 0;
+            let interval = setInterval(function () {
+                if (typeof window.n8nChat !== "undefined" && typeof window.n8nChat.createChat === "function") {
+                    clearInterval(interval);
+                    console.log("🚀 n8nChat is now available!");
 
-                // Create and append the chat inside the floating div
-                let chatElement = document.createElement("div");
-                chatContainer.appendChild(chatElement);
+                    window.n8nChat.createChat({
+                        webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat",
+                        parentElement: chatElement // Force chat inside floating window
+                    });
+                } else if (typeof N8nChat !== "undefined") {
+                    window.n8nChat = N8nChat;
+                }
 
-                // Initialize chat inside the container
-                window.n8nChat.createChat({
-                    webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat",
-                    parentElement: chatElement // Attach chat inside floating window
-                });
-            } else if (typeof N8nChat !== "undefined") {
-                window.n8nChat = N8nChat;
-            }
+                attempts++;
+                console.log(`🔄 Waiting for n8nChat... Attempt ${attempts}`);
+                if (attempts > 10) {
+                    clearInterval(interval);
+                    console.error("❌ n8nChat is still undefined after multiple attempts!");
+                }
+            }, 500);
+        };
 
-            attempts++;
-            console.log(`🔄 Waiting for n8nChat... Attempt ${attempts}`);
-            if (attempts > 10) {
-                clearInterval(interval);
-                console.error("❌ n8nChat is still undefined after multiple attempts!");
-            }
-        }, 500);
-    };
+        script.onerror = function () {
+            console.error("❌ Failed to load n8nChat script!");
+        };
 
-    script.onerror = function () {
-        console.error("❌ Failed to load n8nChat script!");
-    };
-
-    document.head.appendChild(script);
+        document.head.appendChild(script);
+    }
 </script>
