@@ -4,21 +4,36 @@
     script.onload = function () {
         console.log("✅ n8nChat script loaded!");
 
-        // Force assignment to window object
-        window.n8nChat = window.n8nChat || n8nChat;
-
-        // Initialize chat
-        if (window.n8nChat) {
-            console.log("🚀 n8nChat is now available!");
-            window.n8nChat.createChat({
-                webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat"
-            });
-        } else {
-            console.error("❌ n8nChat is still undefined!");
+        // Ensure n8nChat is attached to the global window object
+        if (typeof window.n8nChat === "undefined" && typeof n8nChat !== "undefined") {
+            window.n8nChat = n8nChat;
         }
+
+        // Retry loop to ensure n8nChat is available before calling createChat
+        let attempts = 0;
+        let interval = setInterval(function () {
+            if (typeof window.n8nChat !== "undefined") {
+                clearInterval(interval);
+                console.log("🚀 n8nChat is now available!");
+
+                // Initialize chat
+                window.n8nChat.createChat({
+                    webhookUrl: "https://yancysimplyai.app.n8n.cloud/webhook/4c818c39-b9de-486f-8459-1084a4889290/chat"
+                });
+            } else {
+                attempts++;
+                console.log(`🔄 Waiting for n8nChat... Attempt ${attempts}`);
+                if (attempts > 10) {
+                    clearInterval(interval);
+                    console.error("❌ n8nChat is still undefined after multiple attempts!");
+                }
+            }
+        }, 500);
     };
+
     script.onerror = function () {
         console.error("❌ Failed to load n8nChat script!");
     };
+
     document.head.appendChild(script);
 </script>
